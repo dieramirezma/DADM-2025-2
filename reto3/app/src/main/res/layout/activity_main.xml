@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:stretchColumns="0,1,2">
+
+        <TableRow>
+            <Button android:id="@+id/btn0" style="@style/TicTacToeButton"/>
+            <Button android:id="@+id/btn1" style="@style/TicTacToeButton"/>
+            <Button android:id="@+id/btn2" style="@style/TicTacToeButton"/>
+        </TableRow>
+        <TableRow>
+            <Button android:id="@+id/btn3" style="@style/TicTacToeButton"/>
+            <Button android:id="@+id/btn4" style="@style/TicTacToeButton"/>
+            <Button android:id="@+id/btn5" style="@style/TicTacToeButton"/>
+        </TableRow>
+        <TableRow>
+            <Button android:id="@+id/btn6" style="@style/TicTacToeButton"/>
+            <Button android:id="@+id/btn7" style="@style/TicTacToeButton"/>
+            <Button android:id="@+id/btn8" style="@style/TicTacToeButton"/>
+        </TableRow>
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:text="Tu turno"
+        android:textSize="18sp"
+        android:layout_marginTop="24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
