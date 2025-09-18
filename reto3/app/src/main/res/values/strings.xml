@@ -11,4 +11,40 @@
     <string name="you">Tú</string>
     <string name="ties">Empates</string>
     <string name="android">Android</string>
+    
+    <!-- Menu items -->
+    <string name="menu_new_game">Nuevo Juego</string>
+    <string name="menu_difficulty">Dificultad</string>
+    <string name="menu_about">Acerca de</string>
+    <string name="menu_quit">Salir</string>
+    
+    <!-- Difficulty levels -->
+    <string name="difficulty_easy">Fácil</string>
+    <string name="difficulty_harder">Difícil</string>
+    <string name="difficulty_expert">Experto</string>
+    
+    <!-- Dialog titles and messages -->
+    <string name="dialog_difficulty_title">Seleccionar Dificultad</string>
+    <string name="dialog_quit_title">Confirmar Salida</string>
+    <string name="dialog_quit_message">¿Estás seguro de que quieres salir?</string>
+    <string name="dialog_about_title">Acerca de Tic Tac Toe</string>
+    
+    <!-- Dialog buttons -->
+    <string name="dialog_ok">Aceptar</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="dialog_yes">Sí</string>
+    <string name="dialog_no">No</string>
+    
+    <!-- Toast messages -->
+    <string name="toast_difficulty_changed">Dificultad cambiada a %s</string>
+    <string name="toast_new_game_started">Nuevo juego iniciado</string>
+    
+    <!-- About dialog content -->
+    <string name="about_developer">Desarrollado por: Diego Ramírez</string>
+    <string name="about_version">Versión: 1.0</string>
+    <string name="about_description">Juego clásico de Tres en Raya con diferentes niveles de dificultad. ¡Desafía a la inteligencia artificial!</string>
+    <string name="about_course">DADM 2025-2 - Reto 4</string>
+    
+    <!-- Current difficulty indicator -->
+    <string name="current_difficulty">Dificultad: %s</string>
 </resources>
