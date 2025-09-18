@@ -11,4 +11,36 @@
     <string name="you">Tú</string>
     <string name="ties">Empates</string>
     <string name="android">Android</string>
+
+    <!-- Menú de opciones -->
+    <string name="menu_new_game">Nuevo Juego</string>
+    <string name="menu_difficulty">Dificultad</string>
+    <string name="menu_quit">Salir</string>
+    <string name="menu_about">Acerca de</string>
+
+    <!-- Diálogo de dificultad -->
+    <string name="difficulty_dialog_title">Seleccionar Dificultad</string>
+    <string name="difficulty_easy">Fácil</string>
+    <string name="difficulty_harder">Difícil</string>
+    <string name="difficulty_expert">Experto</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancelar</string>
+
+    <!-- Diálogo de salir -->
+    <string name="quit_dialog_title">Salir del Juego</string>
+    <string name="quit_dialog_message">¿Estás seguro de que quieres salir del juego?</string>
+    <string name="dialog_yes">Sí</string>
+    <string name="dialog_no">No</string>
+
+    <!-- Toast messages -->
+    <string name="difficulty_easy_selected">Dificultad: Fácil seleccionada</string>
+    <string name="difficulty_harder_selected">Dificultad: Difícil seleccionada</string>
+    <string name="difficulty_expert_selected">Dificultad: Experto seleccionada</string>
+
+    <!-- About dialog -->
+    <string name="about_dialog_title">Acerca de</string>
+    <string name="about_dialog_message">Tic Tac Toe - Android\n\nDesarrollado por: Diego Ramírez\nVersión: 1.0\nReto 4 - DADM 2025-2\n\nUn juego clásico de tres en raya con diferentes niveles de dificultad.</string>
+
+    <!-- Game status -->
+    <string name="android_starts">Android empieza</string>
 </resources>
