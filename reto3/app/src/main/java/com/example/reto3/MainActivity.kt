@@ -1,10 +1,14 @@
 package com.example.reto3
 
 import android.app.AlertDialog
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.RadioGroup
@@ -22,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     // Juego y UI components
     private lateinit var game: TicTacToeGame
-    private lateinit var boardButtons: Array<Button>
+    private lateinit var boardView: BoardView
     private lateinit var statusText: TextView
     private lateinit var humanWinsText: TextView
     private lateinit var tiesText: TextView
@@ -36,6 +40,13 @@ class MainActivity : AppCompatActivity() {
     private var humanWins = 0
     private var computerWins = 0
     private var ties = 0
+
+    // MediaPlayer para sonidos
+    private var humanSoundPlayer: MediaPlayer? = null
+    private var computerSoundPlayer: MediaPlayer? = null
+
+    // Handler para delays
+    private val handler = Handler(Looper.getMainLooper())
 
     // Coroutine para manejo asíncrono
     private var gameScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -53,24 +64,34 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         gameScope.cancel()
+        releaseSounds()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        releaseSounds()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadSounds()
     }
 
     /**
      * Inicializa las vistas y vincula los botones
      */
     private fun initializeViews() {
-        // Inicializar botones del tablero
-        boardButtons = arrayOf(
-            findViewById(R.id.btn0),
-            findViewById(R.id.btn1),
-            findViewById(R.id.btn2),
-            findViewById(R.id.btn3),
-            findViewById(R.id.btn4),
-            findViewById(R.id.btn5),
-            findViewById(R.id.btn6),
-            findViewById(R.id.btn7),
-            findViewById(R.id.btn8)
-        )
+        // Inicializar BoardView
+        boardView = findViewById(R.id.boardView)
+        boardView.setGame(game)
+
+        // Configurar listener para toques en el tablero
+        boardView.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                onBoardTouch(event.x, event.y)
+            }
+            true
+        }
 
         // Inicializar textos de estado y estadísticas
         statusText = findViewById(R.id.tvStatus)
@@ -90,12 +111,8 @@ class MainActivity : AppCompatActivity() {
         gameOver = false
         isComputerTurn = false
 
-        // Limpiar y habilitar todos los botones
-        for (i in boardButtons.indices) {
-            boardButtons[i].text = ""
-            boardButtons[i].isEnabled = true
-            boardButtons[i].setOnClickListener { onBoardButtonClick(i) }
-        }
+        // Invalidar la vista para redibujar el tablero limpio
+        boardView.invalidate()
 
         // Determinar quién empieza y mostrar mensaje apropiado
         if (game.isHumanFirst()) {
@@ -103,38 +120,40 @@ class MainActivity : AppCompatActivity() {
         } else {
             statusText.text = getString(R.string.android_starts)
             isComputerTurn = true
-            // Hacer movimiento de computadora después de un pequeño delay
-            gameScope.launch {
-                delay(500)
+            // Hacer movimiento de computadora después de un delay de 1 segundo
+            handler.postDelayed({
                 makeComputerMove()
-            }
+            }, 1000)
         }
     }
 
     /**
-     * Maneja los clics en los botones del tablero
+     * Maneja los toques en el tablero
      */
-    private fun onBoardButtonClick(position: Int) {
-        if (gameOver || isComputerTurn || !game.setMove(TicTacToeGame.HUMAN_PLAYER, position)) {
+    private fun onBoardTouch(x: Float, y: Float) {
+        if (gameOver || isComputerTurn) {
             return
         }
 
-        // Actualizar botón presionado
-        boardButtons[position].text = TicTacToeGame.HUMAN_PLAYER.toString()
-        boardButtons[position].isEnabled = false
-        boardButtons[position].setTextColor(resources.getColor(android.R.color.holo_green_dark, theme))
+        val position = boardView.getBoardCellFromCoordinates(x, y)
+        if (position != -1 && game.setMove(TicTacToeGame.HUMAN_PLAYER, position)) {
+            // Reproducir sonido del jugador humano
+            humanSoundPlayer?.start()
 
-        // Verificar ganador
-        val winner = game.checkForWinner()
-        if (winner != 0) {
-            handleGameEnd(winner)
-        } else {
-            // Turno de la computadora
-            statusText.text = getString(R.string.turn_computer)
-            isComputerTurn = true
-            gameScope.launch {
-                delay(500) // Pequeño delay para simular "pensamiento"
-                makeComputerMove()
+            // Actualizar la vista
+            boardView.invalidate()
+
+            // Verificar ganador
+            val winner = game.checkForWinner()
+            if (winner != 0) {
+                handleGameEnd(winner)
+            } else {
+                // Turno de la computadora
+                statusText.text = getString(R.string.turn_computer)
+                isComputerTurn = true
+                handler.postDelayed({
+                    makeComputerMove()
+                }, 1000) // Delay de 1 segundo antes del movimiento de la computadora
             }
         }
     }
@@ -147,10 +166,11 @@ class MainActivity : AppCompatActivity() {
 
         val move = game.getComputerMove()
         if (move != -1 && game.setMove(TicTacToeGame.COMPUTER_PLAYER, move)) {
-            // Actualizar botón de computadora
-            boardButtons[move].text = TicTacToeGame.COMPUTER_PLAYER.toString()
-            boardButtons[move].isEnabled = false
-            boardButtons[move].setTextColor(resources.getColor(android.R.color.holo_red_dark, theme))
+            // Reproducir sonido de la computadora
+            computerSoundPlayer?.start()
+
+            // Actualizar la vista
+            boardView.invalidate()
 
             // Verificar ganador
             val winner = game.checkForWinner()
@@ -169,11 +189,6 @@ class MainActivity : AppCompatActivity() {
     private fun handleGameEnd(winner: Int) {
         gameOver = true
         isComputerTurn = false
-
-        // Deshabilitar todos los botones
-        for (button in boardButtons) {
-            button.isEnabled = false
-        }
 
         // Mostrar resultado y actualizar estadísticas
         when (winner) {
@@ -203,6 +218,29 @@ class MainActivity : AppCompatActivity() {
         humanWinsText.text = humanWins.toString()
         tiesText.text = ties.toString()
         computerWinsText.text = computerWins.toString()
+    }
+
+    /**
+     * Carga los sonidos para el juego
+     */
+    private fun loadSounds() {
+        try {
+            humanSoundPlayer = MediaPlayer.create(this, R.raw.human_sound)
+            computerSoundPlayer = MediaPlayer.create(this, R.raw.ai_sound)
+        } catch (e: Exception) {
+            // Si no se pueden cargar los sonidos, continúa sin ellos
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Libera los recursos de sonido
+     */
+    private fun releaseSounds() {
+        humanSoundPlayer?.release()
+        computerSoundPlayer?.release()
+        humanSoundPlayer = null
+        computerSoundPlayer = null
     }
 
     // Menú de opciones

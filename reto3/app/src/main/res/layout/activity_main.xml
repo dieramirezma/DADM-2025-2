@@ -104,27 +104,11 @@
     </LinearLayout>
 
     <!-- Tablero de juego -->
-    <TableLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:stretchColumns="0,1,2">
-
-        <TableRow>
-            <Button android:id="@+id/btn0" style="@style/TicTacToeButton"/>
-            <Button android:id="@+id/btn1" style="@style/TicTacToeButton"/>
-            <Button android:id="@+id/btn2" style="@style/TicTacToeButton"/>
-        </TableRow>
-        <TableRow>
-            <Button android:id="@+id/btn3" style="@style/TicTacToeButton"/>
-            <Button android:id="@+id/btn4" style="@style/TicTacToeButton"/>
-            <Button android:id="@+id/btn5" style="@style/TicTacToeButton"/>
-        </TableRow>
-        <TableRow>
-            <Button android:id="@+id/btn6" style="@style/TicTacToeButton"/>
-            <Button android:id="@+id/btn7" style="@style/TicTacToeButton"/>
-            <Button android:id="@+id/btn8" style="@style/TicTacToeButton"/>
-        </TableRow>
-    </TableLayout>
+    <com.example.reto3.BoardView
+        android:id="@+id/boardView"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_margin="16dp" />
 
     <!-- Estado del juego -->
     <TextView
