@@ -1,6 +1,7 @@
 package com.example.reto3
 
 import android.app.AlertDialog
+import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -20,9 +21,32 @@ import kotlinx.coroutines.*
 /**
  * Actividad principal del juego Tic Tac Toe
  * Implementa un juego de tres en raya con diferentes niveles de dificultad
- * y menús de opciones para mejorar la experiencia del usuario
+ * y menús de opciones para mejorar la experiencia del usuario.
+ *
+ * Características principales:
+ * - Soporte para orientación portrait y landscape
+ * - Preservación del estado durante rotación de pantalla
+ * - Almacenamiento persistente de estadísticas y configuraciones
  */
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val PREFS_NAME = "TicTacToePrefs"
+        private const val KEY_HUMAN_WINS = "humanWins"
+        private const val KEY_COMPUTER_WINS = "computerWins"
+        private const val KEY_TIES = "ties"
+        private const val KEY_DIFFICULTY = "difficulty"
+        private const val KEY_HUMAN_FIRST = "humanFirst"
+
+        // Keys para guardar el estado del juego durante rotación
+        private const val STATE_BOARD = "board"
+        private const val STATE_GAME_OVER = "gameOver"
+        private const val STATE_IS_COMPUTER_TURN = "isComputerTurn"
+        private const val STATE_HUMAN_WINS = "stateHumanWins"
+        private const val STATE_COMPUTER_WINS = "stateComputerWins"
+        private const val STATE_TIES = "stateTies"
+        private const val STATE_STATUS_TEXT = "statusText"
+    }
 
     // Juego y UI components
     private lateinit var game: TicTacToeGame
@@ -51,30 +75,150 @@ class MainActivity : AppCompatActivity() {
     // Coroutine para manejo asíncrono
     private var gameScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
+    // SharedPreferences para persistencia
+    private lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Inicializar SharedPreferences
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+
         // Inicializar juego y componentes UI
         game = TicTacToeGame()
         initializeViews()
-        startNewGame()
+
+        // Restaurar estado si es necesario
+        if (savedInstanceState != null) {
+            restoreGameState(savedInstanceState)
+        } else {
+            // Cargar configuraciones persistentes
+            loadPersistentData()
+            startNewGame()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         gameScope.cancel()
         releaseSounds()
+        savePersistentData()
     }
 
     override fun onPause() {
         super.onPause()
         releaseSounds()
+        savePersistentData()
     }
 
     override fun onResume() {
         super.onResume()
         loadSounds()
+    }
+
+    /**
+     * Guarda el estado del juego cuando la configuración cambia (rotación de pantalla)
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        // Guardar estado del tablero
+        val board = CharArray(TicTacToeGame.BOARD_SIZE)
+        for (i in 0 until TicTacToeGame.BOARD_SIZE) {
+            board[i] = game.getBoardOccupant(i)
+        }
+        outState.putCharArray(STATE_BOARD, board)
+
+        // Guardar estado del juego
+        outState.putBoolean(STATE_GAME_OVER, gameOver)
+        outState.putBoolean(STATE_IS_COMPUTER_TURN, isComputerTurn)
+
+        // Guardar estadísticas actuales
+        outState.putInt(STATE_HUMAN_WINS, humanWins)
+        outState.putInt(STATE_COMPUTER_WINS, computerWins)
+        outState.putInt(STATE_TIES, ties)
+
+        // Guardar texto de estado
+        outState.putString(STATE_STATUS_TEXT, statusText.text.toString())
+    }
+
+    /**
+     * Restaura el estado del juego después de un cambio de configuración
+     */
+    private fun restoreGameState(savedInstanceState: Bundle) {
+        // Restaurar estadísticas persistentes primero
+        loadPersistentData()
+
+        // Restaurar estado del tablero
+        val boardState = savedInstanceState.getCharArray(STATE_BOARD)
+        if (boardState != null) {
+            for (i in boardState.indices) {
+                if (boardState[i] != TicTacToeGame.OPEN_SPOT) {
+                    game.setMove(boardState[i], i)
+                }
+            }
+        }
+
+        // Restaurar estado del juego
+        gameOver = savedInstanceState.getBoolean(STATE_GAME_OVER, false)
+        isComputerTurn = savedInstanceState.getBoolean(STATE_IS_COMPUTER_TURN, false)
+
+        // Restaurar estadísticas de la sesión actual
+        humanWins = savedInstanceState.getInt(STATE_HUMAN_WINS, humanWins)
+        computerWins = savedInstanceState.getInt(STATE_COMPUTER_WINS, computerWins)
+        ties = savedInstanceState.getInt(STATE_TIES, ties)
+
+        // Restaurar texto de estado
+        val statusTextString = savedInstanceState.getString(STATE_STATUS_TEXT)
+        if (statusTextString != null) {
+            statusText.text = statusTextString
+        }
+
+        // Actualizar UI
+        updateStatistics()
+        boardView.invalidate()
+
+        // Si es turno de la computadora y el juego no ha terminado, hacer el movimiento
+        if (isComputerTurn && !gameOver) {
+            handler.postDelayed({
+                makeComputerMove()
+            }, 1000)
+        }
+    }
+
+    /**
+     * Carga datos persistentes desde SharedPreferences
+     */
+    private fun loadPersistentData() {
+        humanWins = sharedPreferences.getInt(KEY_HUMAN_WINS, 0)
+        computerWins = sharedPreferences.getInt(KEY_COMPUTER_WINS, 0)
+        ties = sharedPreferences.getInt(KEY_TIES, 0)
+
+        // Cargar configuración de dificultad
+        val difficultyOrdinal = sharedPreferences.getInt(KEY_DIFFICULTY, TicTacToeGame.DifficultyLevel.EXPERT.ordinal)
+        val difficulty = TicTacToeGame.DifficultyLevel.values()[difficultyOrdinal]
+        game.setDifficultyLevel(difficulty)
+
+        // Cargar quién inicia primero
+        val humanFirst = sharedPreferences.getBoolean(KEY_HUMAN_FIRST, true)
+        if (game.isHumanFirst() != humanFirst) {
+            game.switchFirstPlayer()
+        }
+    }
+
+    /**
+     * Guarda datos persistentes en SharedPreferences
+     */
+    private fun savePersistentData() {
+        with(sharedPreferences.edit()) {
+            putInt(KEY_HUMAN_WINS, humanWins)
+            putInt(KEY_COMPUTER_WINS, computerWins)
+            putInt(KEY_TIES, ties)
+            putInt(KEY_DIFFICULTY, game.getDifficultyLevel().ordinal)
+            putBoolean(KEY_HUMAN_FIRST, game.isHumanFirst())
+            apply()
+        }
     }
 
     /**
@@ -209,6 +353,9 @@ class MainActivity : AppCompatActivity() {
         // Cambiar quién empieza la próxima vez
         game.switchFirstPlayer()
         updateStatistics()
+
+        // Guardar estadísticas actualizadas
+        savePersistentData()
     }
 
     /**
@@ -267,6 +414,10 @@ class MainActivity : AppCompatActivity() {
                 showQuitDialog()
                 true
             }
+            R.id.menu_reset_stats -> {
+                showResetStatsDialog()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -302,6 +453,9 @@ class MainActivity : AppCompatActivity() {
 
             // Actualizar dificultad en el juego
             game.setDifficultyLevel(selectedLevel)
+
+            // Guardar la configuración de dificultad
+            savePersistentData()
 
             // Mostrar mensaje Toast
             val toastMessage = when (selectedLevel) {
@@ -353,5 +507,36 @@ class MainActivity : AppCompatActivity() {
         }
 
         builder.show()
+    }
+
+    /**
+     * Muestra el diálogo de confirmación para resetear estadísticas
+     */
+    private fun showResetStatsDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Reset Statistics")
+        builder.setMessage("Are you sure you want to reset all statistics?")
+
+        builder.setPositiveButton(R.string.dialog_yes) { _, _ ->
+            resetStatistics()
+            Toast.makeText(this, "Statistics reset successfully", Toast.LENGTH_SHORT).show()
+        }
+
+        builder.setNegativeButton(R.string.dialog_no) { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        builder.show()
+    }
+
+    /**
+     * Resetea todas las estadísticas
+     */
+    private fun resetStatistics() {
+        humanWins = 0
+        computerWins = 0
+        ties = 0
+        updateStatistics()
+        savePersistentData()
     }
 }

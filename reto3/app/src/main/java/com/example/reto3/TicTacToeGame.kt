@@ -42,6 +42,24 @@ class TicTacToeGame {
     }
 
     /**
+     * Obtiene el estado completo del tablero
+     */
+    fun getBoardState(): CharArray {
+        return board.copyOf()
+    }
+
+    /**
+     * Establece el estado completo del tablero
+     */
+    fun setBoardState(boardState: CharArray) {
+        if (boardState.size == BOARD_SIZE) {
+            for (i in board.indices) {
+                board[i] = boardState[i]
+            }
+        }
+    }
+
+    /**
      * Setter para el nivel de dificultad
      */
     fun setDifficultyLevel(level: DifficultyLevel) {
