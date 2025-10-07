@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class GameRepository {
-    
+
     private val database = FirebaseDatabase.getInstance()
     private val gamesRef = database.getReference("games")
     private val playersRef = database.getReference("players")
@@ -22,19 +22,19 @@ class GameRepository {
     suspend fun createGame(playerId: String, playerName: String): Result<Game> {
         return try {
             val gameId = gamesRef.push().key ?: return Result.failure(Exception("Failed to generate game ID"))
-            
+
             val game = Game(
                 gameId = gameId,
                 createdBy = playerId,
                 playerX = playerId,
                 status = GameStatus.WAITING
             )
-            
+
             gamesRef.child(gameId).setValue(game.toMap()).await()
-            
+
             // Actualizar jugador
             updatePlayerGame(playerId, gameId)
-            
+
             Result.success(game)
         } catch (e: Exception) {
             Result.failure(e)
@@ -47,24 +47,24 @@ class GameRepository {
     suspend fun joinGame(gameId: String, playerId: String): Result<Game> {
         return try {
             val snapshot = gamesRef.child(gameId).get().await()
-            val game = snapshot.getValue(Game::class.java) 
+            val game = snapshot.getValue(Game::class.java)
                 ?: return Result.failure(Exception("Game not found"))
-            
+
             if (game.status != GameStatus.WAITING) {
                 return Result.failure(Exception("Game is not available"))
             }
-            
+
             if (game.playerO != null) {
                 return Result.failure(Exception("Game is full"))
             }
-            
+
             // Actualizar juego
             gamesRef.child(gameId).child("playerO").setValue(playerId).await()
             gamesRef.child(gameId).child("status").setValue(GameStatus.PLAYING.name).await()
-            
+
             // Actualizar jugador
             updatePlayerGame(playerId, gameId)
-            
+
             val updatedGame = game.copy(playerO = playerId, status = GameStatus.PLAYING)
             Result.success(updatedGame)
         } catch (e: Exception) {
@@ -77,7 +77,7 @@ class GameRepository {
      */
     fun getAvailableGames(): Flow<List<Game>> = callbackFlow {
         val query = gamesRef.orderByChild("status").equalTo(GameStatus.WAITING.name)
-        
+
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val games = mutableListOf<Game>()
@@ -93,9 +93,9 @@ class GameRepository {
                 close(error.toException())
             }
         }
-        
+
         query.addValueEventListener(listener)
-        
+
         awaitClose { query.removeEventListener(listener) }
     }
 
@@ -113,9 +113,9 @@ class GameRepository {
                 close(error.toException())
             }
         }
-        
+
         gamesRef.child(gameId).addValueEventListener(listener)
-        
+
         awaitClose { gamesRef.child(gameId).removeEventListener(listener) }
     }
 
@@ -125,32 +125,32 @@ class GameRepository {
     suspend fun makeMove(gameId: String, position: Int, player: String): Result<Unit> {
         return try {
             val snapshot = gamesRef.child(gameId).get().await()
-            val game = snapshot.getValue(Game::class.java) 
+            val game = snapshot.getValue(Game::class.java)
                 ?: return Result.failure(Exception("Game not found"))
-            
+
             if (game.status != GameStatus.PLAYING) {
                 return Result.failure(Exception("Game is not in playing state"))
             }
-            
+
             if (game.currentTurn != player) {
                 return Result.failure(Exception("Not your turn"))
             }
-            
+
             val updatedBoard = game.board.toMutableList()
             if (updatedBoard[position] != " ") {
                 return Result.failure(Exception("Position already occupied"))
             }
-            
+
             updatedBoard[position] = player
-            
+
             val updates = hashMapOf<String, Any>(
                 "board" to updatedBoard,
                 "currentTurn" to if (player == "X") "O" else "X",
                 "lastMove" to System.currentTimeMillis()
             )
-            
+
             gamesRef.child(gameId).updateChildren(updates).await()
-            
+
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -179,7 +179,7 @@ class GameRepository {
         try {
             val snapshot = gamesRef.child(gameId).get().await()
             val game = snapshot.getValue(Game::class.java) ?: return
-            
+
             // Si el juego está esperando, eliminarlo
             if (game.status == GameStatus.WAITING) {
                 gamesRef.child(gameId).removeValue().await()
@@ -187,7 +187,7 @@ class GameRepository {
                 // Marcar como finalizado
                 updateGameWinner(gameId, null)
             }
-            
+
             // Limpiar referencia del jugador
             updatePlayerGame(playerId, null)
         } catch (e: Exception) {
@@ -205,12 +205,12 @@ class GameRepository {
                 displayName = displayName,
                 online = true
             )
-            
+
             playersRef.child(playerId).setValue(player.toMap()).await()
-            
+
             // Configurar presencia
             setupPresence(playerId)
-            
+
             Result.success(player)
         } catch (e: Exception) {
             Result.failure(e)
@@ -222,12 +222,12 @@ class GameRepository {
             "online" to true,
             "lastSeen" to ServerValue.TIMESTAMP
         )
-        
+
         val disconnectData = mapOf(
             "online" to false,
             "lastSeen" to ServerValue.TIMESTAMP
         )
-        
+
         presenceRef.child(playerId).setValue(presenceData)
         presenceRef.child(playerId).onDisconnect().setValue(disconnectData)
     }
@@ -247,7 +247,7 @@ class GameRepository {
         try {
             val oneDayAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000)
             val snapshot = gamesRef.orderByChild("createdAt").endAt(oneDayAgo.toDouble()).get().await()
-            
+
             for (gameSnapshot in snapshot.children) {
                 gameSnapshot.ref.removeValue()
             }

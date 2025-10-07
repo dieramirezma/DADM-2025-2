@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity() {
         val winner = game.checkForWinner()
         winner?.let {
             gameOver = true
-            
+
             lifecycleScope.launch {
                 gameId?.let { id ->
                     val winnerStr = when (winner) {

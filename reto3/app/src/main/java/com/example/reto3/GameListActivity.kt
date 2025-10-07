@@ -25,7 +25,7 @@ class GameListActivity : AppCompatActivity() {
     private lateinit var adapter: GameListAdapter
     private lateinit var repository: GameRepository
     private lateinit var auth: FirebaseAuth
-    
+
     private var playerName: String = "Player"
 
     override fun onCreate(savedInstanceState: Bundle?) {

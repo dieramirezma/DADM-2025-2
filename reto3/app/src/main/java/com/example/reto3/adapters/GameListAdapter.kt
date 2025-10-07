@@ -34,7 +34,7 @@ class GameListAdapter(
         fun bind(game: Game, onClick: (Game) -> Unit) {
             gameIdText.text = "Game #${game.gameId.takeLast(6)}"
             gameInfoText.text = "Waiting for opponent..."
-            
+
             val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
             gameTimeText.text = "Created: ${dateFormat.format(Date(game.createdAt))}"
 
