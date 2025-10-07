@@ -1,46 +1,93 @@
 <resources>
-    <string name="app_name">Tic Tac Toe</string>
-    <string name="first_human">Empiezas tú</string>
-    <string name="turn_computer">Turno de Android</string>
-    <string name="turn_human">Tu turno</string>
-    <string name="result_tie">¡Empate!</string>
-    <string name="result_human_wins">¡Ganaste!</string>
-    <string name="result_computer_wins">Android ganó</string>
+    <!-- App general -->
+    <string name="app_name">Triqui Online</string>
+
+    <!-- Game List Activity -->
+    <string name="available_games">Juegos Disponibles</string>
+    <string name="no_games_available">No hay juegos disponibles.\n¡Crea uno nuevo!</string>
+    <string name="create_game">Crear Juego</string>
+    <string name="refresh_games">Actualizar</string>
+
+    <!-- Player Name Dialog -->
+    <string name="welcome_title">¡Bienvenido!</string>
+    <string name="enter_player_name">Ingresa tu nombre de jugador</string>
+    <string name="player_name_hint">Tu nombre</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancelar</string>
+
+    <!-- Game Item -->
+    <string name="game_id_format">Juego #%s</string>
+    <string name="waiting_for_opponent">Esperando oponente...</string>
+    <string name="created_at_format">Creado: %s</string>
+    <string name="tap_to_join">Toca para unirte</string>
+
+    <!-- Game Activity -->
+    <string name="game_status_waiting">Esperando al segundo jugador...</string>
+    <string name="game_status_your_turn">Tu turno (%s)</string>
+    <string name="game_status_opponent_turn">Turno del oponente</string>
+    <string name="game_status_starting">Iniciando juego...</string>
+
+    <!-- Game Results -->
+    <string name="you_win">¡Ganaste! 🎉</string>
+    <string name="you_lose">Perdiste 😢</string>
+    <string name="game_tie">¡Empate! 🤝</string>
+    <string name="game_ended">Juego terminado</string>
+    <string name="game_over_title">Fin del Juego</string>
+
+    <!-- Menu -->
+    <string name="menu_leave">Salir del Juego</string>
+    <string name="menu_refresh">Actualizar</string>
+
+    <!-- Dialogs -->
+    <string name="leave_game_title">Salir del Juego</string>
+    <string name="leave_game_message">¿Estás seguro de que quieres salir?\nEl juego se marcará como terminado.</string>
+    <string name="dialog_yes">Sí</string>
+    <string name="dialog_no">No</string>
+
+    <!-- Toast Messages -->
+    <string name="authentication_failed">Error de autenticación</string>
+    <string name="invalid_game">Juego inválido</string>
+    <string name="failed_to_create_game">Error al crear el juego: %s</string>
+    <string name="failed_to_join_game">Error al unirse al juego: %s</string>
+    <string name="game_is_over">El juego ha terminado</string>
+    <string name="invalid_move">Movimiento inválido</string>
+    <string name="not_your_turn">No es tu turno</string>
+    <string name="game_not_available">Juego no disponible</string>
+    <string name="game_full">El juego está lleno</string>
+    <string name="connection_error">Error de conexión</string>
+    <string name="loading">Cargando...</string>
+
+    <!-- Buttons -->
     <string name="new_game">Nuevo Juego</string>
+    <string name="exit">Salir</string>
+    <string name="join_game">Unirse</string>
+    <string name="create_new_game">Crear Nuevo Juego</string>
+
+    <!-- Player Symbols -->
+    <string name="player_x">X</string>
+    <string name="player_o">O</string>
+
+    <!-- About -->
+    <string name="about_title">Acerca de</string>
+    <string name="about_message">Triqui Online\n\nDesarrollado por: Diego Ramírez\nVersión: 2.0\nReto 7 - DADM 2025-2\n\nJuego multijugador en tiempo real usando Firebase.</string>
+
+    <!-- Errors -->
+    <string name="error_no_internet">Sin conexión a Internet</string>
+    <string name="error_firebase_unavailable">Firebase no disponible</string>
+    <string name="error_unknown">Error desconocido</string>
+
+    <!-- Empty States -->
+    <string name="empty_games_title">Sin Juegos</string>
+    <string name="empty_games_message">No hay juegos disponibles en este momento.\n¡Sé el primero en crear uno!</string>
+
+    <!-- Backward compatibility with old layouts (to be replaced) -->
     <string name="statistics">Estadísticas</string>
     <string name="you">Tú</string>
     <string name="ties">Empates</string>
     <string name="android">Android</string>
-
-    <!-- Menú de opciones -->
+    <string name="turn_human">Tu turno</string>
     <string name="menu_new_game">Nuevo Juego</string>
     <string name="menu_difficulty">Dificultad</string>
-    <string name="menu_quit">Salir</string>
     <string name="menu_about">Acerca de</string>
-
-    <!-- Diálogo de dificultad -->
-    <string name="difficulty_dialog_title">Seleccionar Dificultad</string>
-    <string name="difficulty_easy">Fácil</string>
-    <string name="difficulty_harder">Difícil</string>
-    <string name="difficulty_expert">Experto</string>
-    <string name="dialog_ok">OK</string>
-    <string name="dialog_cancel">Cancelar</string>
-
-    <!-- Diálogo de salir -->
-    <string name="quit_dialog_title">Salir del Juego</string>
-    <string name="quit_dialog_message">¿Estás seguro de que quieres salir del juego?</string>
-    <string name="dialog_yes">Sí</string>
-    <string name="dialog_no">No</string>
-
-    <!-- Toast messages -->
-    <string name="difficulty_easy_selected">Dificultad: Fácil seleccionada</string>
-    <string name="difficulty_harder_selected">Dificultad: Difícil seleccionada</string>
-    <string name="difficulty_expert_selected">Dificultad: Experto seleccionada</string>
-
-    <!-- About dialog -->
-    <string name="about_dialog_title">Acerca de</string>
-    <string name="about_dialog_message">Tic Tac Toe - Android\n\nDesarrollado por: Diego Ramírez\nVersión: 1.0\nReto 4 - DADM 2025-2\n\nUn juego clásico de tres en raya con diferentes niveles de dificultad.</string>
-
-    <!-- Game status -->
-    <string name="android_starts">Android empieza</string>
+    <string name="menu_quit">Salir</string>
 </resources>
