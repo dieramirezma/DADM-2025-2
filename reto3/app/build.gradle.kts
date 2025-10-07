@@ -8,7 +8,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.reto3"
+        applicationId = "com.example.reto7"
         minSdk = 23
         targetSdk = 36
         versionCode = 1
