@@ -101,7 +101,10 @@ class GameListActivity : AppCompatActivity() {
     private fun observeGames() {
         lifecycleScope.launch {
             repository.getAvailableGames().collectLatest { games ->
-                adapter.submitList(games)
+                // Filtrar juegos propios - no mostrar los juegos que YO creé
+                val currentUserId = auth.currentUser?.uid
+                val filteredGames = games.filter { it.playerX != currentUserId }
+                adapter.submitList(filteredGames)
             }
         }
     }
@@ -111,6 +114,11 @@ class GameListActivity : AppCompatActivity() {
             auth.currentUser?.uid?.let { uid ->
                 val result = repository.createGame(uid, playerName)
                 result.onSuccess { game ->
+                    Toast.makeText(
+                        this@GameListActivity,
+                        "Juego creado. Esperando oponente...",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     openGameActivity(game.gameId, "X")
                 }.onFailure { error ->
                     Toast.makeText(

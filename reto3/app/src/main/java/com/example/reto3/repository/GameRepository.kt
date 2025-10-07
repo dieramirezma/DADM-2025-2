@@ -50,6 +50,11 @@ class GameRepository {
             val game = snapshot.getValue(Game::class.java)
                 ?: return Result.failure(Exception("Game not found"))
 
+            // Validar que no sea el mismo jugador
+            if (game.playerX == playerId) {
+                return Result.failure(Exception("Cannot join your own game"))
+            }
+
             if (game.status != GameStatus.WAITING) {
                 return Result.failure(Exception("Game is not available"))
             }
