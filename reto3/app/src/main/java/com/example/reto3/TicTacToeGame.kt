@@ -1,29 +1,15 @@
 package com.example.reto3
 
-import kotlin.random.Random
-
 class TicTacToeGame {
 
     companion object {
-        const val HUMAN_PLAYER = 'X'
-        const val COMPUTER_PLAYER = 'O'
+        const val PLAYER_X = 'X'
+        const val PLAYER_O = 'O'
         const val OPEN_SPOT = ' '
         const val BOARD_SIZE = 9
     }
 
-    /**
-     * Niveles de dificultad del juego
-     * EASY: Solo movimientos aleatorios
-     * HARDER: Bloquea al jugador y hace movimientos aleatorios
-     * EXPERT: Trata de ganar, bloquea al jugador y hace movimientos aleatorios
-     */
-    enum class DifficultyLevel {
-        EASY, HARDER, EXPERT
-    }
-
     private val board = CharArray(BOARD_SIZE) { OPEN_SPOT }
-    private var humanFirst = true
-    private var difficultyLevel = DifficultyLevel.EXPERT // Dificultad por defecto
 
     fun clearBoard() {
         for (i in board.indices) board[i] = OPEN_SPOT
@@ -60,113 +46,68 @@ class TicTacToeGame {
     }
 
     /**
-     * Setter para el nivel de dificultad
+     * Establece el estado del tablero desde una lista de Strings (para Firebase)
      */
-    fun setDifficultyLevel(level: DifficultyLevel) {
-        difficultyLevel = level
-    }
-
-    /**
-     * Getter para el nivel de dificultad
-     */
-    fun getDifficultyLevel(): DifficultyLevel {
-        return difficultyLevel
-    }
-
-    /**
-     * Obtiene el mejor movimiento para la computadora basado en la dificultad seleccionada
-     * EASY: Solo movimientos aleatorios
-     * HARDER: Bloquea al jugador, sino movimiento aleatorio
-     * EXPERT: Trata de ganar, bloquea al jugador, sino movimiento aleatorio
-     */
-    fun getComputerMove(): Int {
-        return when (difficultyLevel) {
-            DifficultyLevel.EASY -> getRandomMove()
-            DifficultyLevel.HARDER -> {
-                // Primero trata de bloquear al jugador
-                val blockingMove = getBlockingMove()
-                if (blockingMove != -1) blockingMove else getRandomMove()
-            }
-            DifficultyLevel.EXPERT -> {
-                // Primero trata de ganar
-                val winningMove = getWinningMove()
-                if (winningMove != -1) return winningMove
-
-                // Luego trata de bloquear al jugador
-                val blockingMove = getBlockingMove()
-                if (blockingMove != -1) blockingMove else getRandomMove()
+    fun setBoardStateFromList(boardList: List<String>) {
+        if (boardList.size == BOARD_SIZE) {
+            for (i in board.indices) {
+                board[i] = if (boardList[i].isNotEmpty()) boardList[i][0] else OPEN_SPOT
             }
         }
     }
 
     /**
-     * Obtiene un movimiento aleatorio de las posiciones disponibles
+     * Obtiene el estado del tablero como lista de Strings (para Firebase)
      */
-    private fun getRandomMove(): Int {
-        val availableMoves = board.indices.filter { board[it] == OPEN_SPOT }
-        return if (availableMoves.isNotEmpty()) {
-            availableMoves.random(Random)
-        } else -1
+    fun getBoardStateAsList(): List<String> {
+        return board.map { it.toString() }
     }
 
     /**
-     * Busca un movimiento que permita a la computadora ganar en este turno
-     * @return la posición del movimiento ganador, o -1 si no existe
+     * Verifica si hay un ganador
+     * Devuelve: X, O, T (TIE) o null (juego continúa)
      */
-    private fun getWinningMove(): Int {
-        for (i in board.indices) {
-            if (board[i] == OPEN_SPOT) {
-                // Simula el movimiento de la computadora
-                board[i] = COMPUTER_PLAYER
-                if (checkForWinner() == 3) { // La computadora gana
-                    board[i] = OPEN_SPOT // Restaura el estado
-                    return i
-                }
-                board[i] = OPEN_SPOT // Restaura el estado
+    fun checkForWinner(): Char? {
+        // Filas
+        for (i in 0..6 step 3) {
+            if (board[i] != OPEN_SPOT &&
+                board[i] == board[i + 1] &&
+                board[i] == board[i + 2]
+            ) {
+                return board[i]
             }
         }
-        return -1
-    }
 
-    /**
-     * Busca un movimiento que bloquee al jugador humano de ganar en su próximo turno
-     * @return la posición del movimiento de bloqueo, o -1 si no es necesario
-     */
-    private fun getBlockingMove(): Int {
-        for (i in board.indices) {
-            if (board[i] == OPEN_SPOT) {
-                // Simula el movimiento del jugador humano
-                board[i] = HUMAN_PLAYER
-                if (checkForWinner() == 2) { // El humano ganaría
-                    board[i] = OPEN_SPOT // Restaura el estado
-                    return i // Bloquea esta posición
-                }
-                board[i] = OPEN_SPOT // Restaura el estado
+        // Columnas
+        for (i in 0..2) {
+            if (board[i] != OPEN_SPOT &&
+                board[i] == board[i + 3] &&
+                board[i] == board[i + 6]
+            ) {
+                return board[i]
             }
         }
-        return -1
-    }
 
-    fun checkForWinner(): Int {
-        val lines = arrayOf(
-            intArrayOf(0,1,2), intArrayOf(3,4,5), intArrayOf(6,7,8), // filas
-            intArrayOf(0,3,6), intArrayOf(1,4,7), intArrayOf(2,5,8), // columnas
-            intArrayOf(0,4,8), intArrayOf(2,4,6)                      // diagonales
-        )
-
-        for (line in lines) {
-            if (board[line[0]] != OPEN_SPOT &&
-                board[line[0]] == board[line[1]] &&
-                board[line[1]] == board[line[2]]) {
-                return if (board[line[0]] == HUMAN_PLAYER) 2 else 3
-            }
+        // Diagonales
+        if (board[0] != OPEN_SPOT &&
+            board[0] == board[4] &&
+            board[0] == board[8]
+        ) {
+            return board[0]
         }
-        return if (board.all { it != OPEN_SPOT }) 1 else 0
-    }
 
-    fun isHumanFirst(): Boolean = humanFirst
+        if (board[2] != OPEN_SPOT &&
+            board[2] == board[4] &&
+            board[2] == board[6]
+        ) {
+            return board[2]
+        }
 
-    fun switchFirstPlayer() {
-        humanFirst = !humanFirst
+        // Empate - tablero lleno
+        if (board.none { it == OPEN_SPOT }) {
+            return 'T' // T para TIE
+        }
+
+        return null // Juego continúa
     }
 }

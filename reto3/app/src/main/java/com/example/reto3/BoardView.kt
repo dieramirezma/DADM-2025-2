@@ -113,46 +113,45 @@ class BoardView @JvmOverloads constructor(
 
         // Dibujar las piezas (X y O)
         game?.let { ticTacToeGame ->
-            for (row in 0..2) {
-                for (col in 0..2) {
-                    val position = row * 3 + col
-                    val piece = ticTacToeGame.getBoardOccupant(position)
+            for (i in 0 until TicTacToeGame.BOARD_SIZE) {
+                val col = i % 3
+                val row = i / 3
 
-                    if (piece != TicTacToeGame.OPEN_SPOT) {
-                        val left = paddingLeft + col * cellWidth
-                        val top = paddingTop + row * cellHeight
-                        val right = left + cellWidth
-                        val bottom = top + cellHeight
+                val left = paddingLeft + col * cellWidth
+                val top = paddingTop + row * cellHeight
 
-                        val rect = RectF(left, top, right, bottom)
-
-                        // Agregar un pequeño margen para que las piezas no toquen las líneas
-                        val margin = 20f
-                        rect.inset(margin, margin)
-
-                        val bitmap = if (piece == TicTacToeGame.HUMAN_PLAYER) xImage else oImage
-                        bitmap?.let { bmp ->
-                            canvas.drawBitmap(bmp, null, rect, null)
-                        }
-                    }
+                when (ticTacToeGame.getBoardOccupant(i)) {
+                    TicTacToeGame.PLAYER_X -> drawPiece(canvas, xImage, left, top)
+                    TicTacToeGame.PLAYER_O -> drawPiece(canvas, oImage, left, top)
                 }
             }
         }
     }
 
-    fun getBoardCellFromCoordinates(x: Float, y: Float): Int {
-        if (cellWidth == 0f || cellHeight == 0f) return -1
-
-        val adjustedX = x - paddingLeft
-        val adjustedY = y - paddingTop
-
-        val col = (adjustedX / cellWidth).toInt()
-        val row = (adjustedY / cellHeight).toInt()
-
-        return if (row in 0..2 && col in 0..2) {
-            row * 3 + col
-        } else {
-            -1
+    private fun drawPiece(canvas: Canvas, image: Bitmap?, left: Float, top: Float) {
+        image?.let {
+            val scaledImage = Bitmap.createScaledBitmap(
+                it,
+                (cellWidth * 0.8f).toInt(),
+                (cellHeight * 0.8f).toInt(),
+                true
+            )
+            canvas.drawBitmap(
+                scaledImage,
+                left + cellWidth * 0.1f,
+                top + cellHeight * 0.1f,
+                null
+            )
         }
+    }
+
+    fun getBoardCellFromCoordinates(x: Float, y: Float): Int {
+        val col = ((x - paddingLeft) / cellWidth).toInt()
+        val row = ((y - paddingTop) / cellHeight).toInt()
+
+        if (row in 0..2 && col in 0..2) {
+            return row * 3 + col
+        }
+        return -1
     }
 }
