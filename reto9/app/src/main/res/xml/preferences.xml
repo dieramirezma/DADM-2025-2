@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Configuración de Radio">
+
+        <SeekBarPreference
+            android:key="search_radius"
+            android:title="Radio de búsqueda (km)"
+            android:summary="Radio en kilómetros para buscar puntos de interés"
+            android:defaultValue="5"
+            android:max="50"
+            android:min="1" />
+
+        <ListPreference
+            android:key="place_type"
+            android:title="Tipo de lugar"
+            android:summary="Selecciona el tipo de puntos de interés a buscar"
+            android:entries="@array/place_types"
+            android:entryValues="@array/place_type_values"
+            android:defaultValue="hospital" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

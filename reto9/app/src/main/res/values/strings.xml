@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Puntos de Interés</string>
+
+    <!-- Arrays para tipos de lugares -->
+    <string-array name="place_types">
+        <item>Hospitales</item>
+        <item>Restaurantes</item>
+        <item>Gasolineras</item>
+        <item>Farmacias</item>
+        <item>Bancos</item>
+        <item>Lugares Turísticos</item>
+        <item>Tiendas</item>
+        <item>Hoteles</item>
+    </string-array>
+
+    <string-array name="place_type_values">
+        <item>hospital</item>
+        <item>restaurant</item>
+        <item>gas_station</item>
+        <item>pharmacy</item>
+        <item>bank</item>
+        <item>tourist_attraction</item>
+        <item>store</item>
+        <item>lodging</item>
+    </string-array>
+</resources>
