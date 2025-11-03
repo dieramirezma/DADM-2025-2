@@ -1,0 +1,10 @@
+## This file must exist in the root of the project
+# Do NOT commit this file to version control
+# Add local.properties to .gitignore
+
+# Location of the SDK (automatically set by Android Studio)
+sdk.dir=/path/to/Android/Sdk
+
+# 🔐 Your API Token from datos.gov.co
+# Get your token at: https://www.datos.gov.co/profile/edit/developer_settings
+APP_TOKEN=YOUR_TOKEN_HERE
