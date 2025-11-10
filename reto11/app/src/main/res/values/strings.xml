@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Gemini Chatbot</string>
+    <string name="hint_message">Escribe un mensaje...</string>
+    <string name="send">Enviar</string>
+    <string name="api_key_error">Error: API Key no configurada. Por favor, configura tu API Key de Gemini.</string>
+    <string name="error_occurred">Ocurrió un error</string>
+    <string name="typing">Escribiendo...</string>
+</resources>
